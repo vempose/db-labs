@@ -199,7 +199,9 @@ CREATE TABLE semester_calendar (
 );
 
 -- Task 5.2: Database Cleanup
--- ALTER DATABASE university_test is_template false;
--- ^ Drop university_test database if it exists
+-- One line below is needed to drop table 'university_test'.
+-- By default, postgres doesn't allow you to drop a template database.
+UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'university_test';
+DROP DATABASE IF EXISTS university_test;
 DROP DATABASE IF EXISTS university_distributed;
 CREATE DATABASE university_backup TEMPLATE university_main;
