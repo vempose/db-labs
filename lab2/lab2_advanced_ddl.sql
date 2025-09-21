@@ -9,14 +9,20 @@ CREATE TABLESPACE student_data LOCATION '/data/students';
 CREATE TABLESPACE course_data LOCATION '/data/courses';
 CREATE DATABASE university_distributed
     TABLESPACE student_data
-    TEMPLATE template0 -- allows us to use different encoding
-    LC_CTYPE 'C' -- general, neutral option
-    LC_COLLATE 'C' -- general, neutral option
+    -- Line below allow us to change encoding, i.e. LC_CTYPE and LC_COLLATE
+    TEMPLATE template0
+    -- Two line below just sets appropriate options for the latin9 encoding.
+    -- I use these general values, because my machine does not support ISO885915
+    LC_CTYPE 'C'
+    LC_COLLATE 'C'
     ENCODING 'LATIN9';
 
 
 -- ** Part 2: Complex Table Creation ** --
 -- Task 2.1: University Management System
+-- Line below just needs to select required table.
+-- Normally, it's done in psql manually, but if you
+-- run this file in psql, then it should work
 \c university_main
 CREATE TABLE students (
     student_id SERIAL PRIMARY KEY,
