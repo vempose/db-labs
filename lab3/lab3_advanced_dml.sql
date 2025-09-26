@@ -127,11 +127,25 @@ WHERE department = 'Sales';
 
 -- ** Part D: Advanced DELETE Operations ** --
 -- 13. DELETE with simple WHERE condition
+INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
+VALUES ('Viktor', 'Petrov', 'IT', 72000, '2020-05-12', 'Terminated'),
+       ('Anna', 'Sokolova', 'HR', 54000, '2019-11-03', 'Terminated'),
+       ('Sergey', 'Nikolaev', 'Finance', 61000, '2018-08-21', 'Terminated'),
+       ('Natasha', 'Volkov', 'Marketing', 58000, '2021-02-15', 'Terminated'),
+       ('Ivan', 'Fedorov', 'Sales', 59000, '2019-09-10', 'Terminated');
+
 DELETE
 FROM employees
 WHERE status = 'Terminated';
 
 -- 14. DELETE with complex WHERE clause
+INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
+VALUES ('Alice', 'Walker', NULL, 35000, '2023-03-15', 'Active'),
+       ('Robert', 'Turner', NULL, 32000, '2023-06-20', 'Active'),
+       ('Elena', 'Morozova', NULL, 39000, '2023-02-10', 'Terminated'),
+       ('Jack', 'Phillips', NULL, 28000, '2023-05-05', 'Active'),
+       ('Olga', 'Smirnova', NULL, 37000, '2023-04-18', 'Active');
+
 DELETE
 FROM employees
 WHERE salary < 40000
@@ -166,8 +180,12 @@ RETURNING *;
 
 -- ** Part E: Operations with NULL Values ** --
 -- 17. INSERT with NULL values
-INSERT INTO employees (first_name, last_name, salary, department)
-VALUES ('John', 'Wick', NULL, NULL);
+INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
+VALUES ('Pavel', 'Lebedev', NULL, NULL, '2023-03-10', 'Active'),
+       ('Katherine', 'Roberts', NULL, NULL, '2023-04-05', 'Active'),
+       ('Andrey', 'Kozlov', NULL, NULL, '2023-05-12', 'Terminated'),
+       ('Jessica', 'Adams', NULL, NULL, '2023-06-20', 'Active'),
+       ('Maxim', 'Novikov', NULL, NULL, '2023-07-15', 'Terminated');
 
 -- 18. UPDATE NULL handling
 UPDATE employees
@@ -184,17 +202,20 @@ WHERE salary IS NULL
 
 -- ** Part F: RETURNING Clause Operations ** --
 -- 20. INSERT with RETURNING
-INSERT INTO employees (first_name, last_name)
-VALUES ('Alfred', 'Walker')
+INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
+VALUES ('Marina', 'Pavlova', 'IT', 75000, '2023-01-15', 'Active'),
+       ('Christopher', 'Baker', 'Finance', 68000, '2022-11-03', 'Active'),
+       ('Tatiana', 'Orlova', 'Marketing', 59000, '2021-09-22', 'Active'),
+       ('Andrew', 'Mitchell', 'Sales', 62000, '2020-04-17', 'Active'),
+       ('Svetlana', 'Popova', 'HR', 57000, '2023-03-09', 'Active')
 RETURNING emp_id, first_name || ' ' || last_name AS full_name;
 
 -- 21. UPDATE with RETURNING
--- Add some employees
 INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
-VALUES ('Noah', 'King', 'IT', 77000, '2022-03-14', 'Active'),
-       ('Liam', 'Scott', 'IT', 82000, '2021-12-01', 'Active'),
-       ('Emma', 'Young', 'IT', 76000, '2023-05-20', 'Active'),
-       ('Ava', 'Hall', 'IT', 85000, '2020-10-11', 'Inactive'),
+VALUES ('George', 'King', 'IT', 77000, '2022-03-14', 'Active'),
+       ('Anton', 'Vasiliev', 'IT', 82000, '2021-12-01', 'Active'),
+       ('Madison', 'Young', 'IT', 76000, '2023-05-20', 'Active'),
+       ('Ekaterina', 'Mikhailova', 'IT', 85000, '2020-10-11', 'Inactive'),
        ('William', 'Allen', 'IT', 79000, '2022-08-25', 'Active');
 
 UPDATE employees
@@ -213,11 +234,11 @@ RETURNING *;
 -- ** Part G: Advanced DML Patterns  ** --
 -- 23. Conditional INSERT
 INSERT INTO employees (first_name, last_name)
-SELECT 'Semen', 'Prostoy'
+SELECT 'Dmitriy', 'Ivanov'
 WHERE NOT EXISTS (SELECT 1
                   FROM employees
-                  WHERE first_name = 'Semen'
-                    AND last_name = 'Prostoy');
+                  WHERE first_name = 'Dmitriy'
+                    AND last_name = 'Ivanov');
 
 -- 24. UPDATE with JOIN logic using subqueries
 -- NOTE: PostgreSQL’s execution order is different from the intuition:
@@ -235,27 +256,32 @@ WHERE d.dept_name = e.department;
 
 --  25. Bulk operations
 INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
-VALUES
-    ('John', 'Smith', 'Engineering', 75000, '2024-01-15', 'Active'),
-    ('Sarah', 'Johnson', 'Marketing', 65000, '2024-02-20', 'Active'),
-    ('Michael', 'Brown', 'Sales', 70000, '2024-03-10', 'Active'),
-    ('Emily', 'Davis', 'Engineering', 80000, '2024-01-25', 'Active'),
-    ('Robert', 'Wilson', 'HR', 60000, '2024-04-05', 'Active');
+VALUES ('Nicholas', 'Campbell', 'Engineering', 75000, '2024-01-15', 'Active'),
+       ('Yulia', 'Romanova', 'Marketing', 65000, '2024-02-20', 'Active'),
+       ('Matthew', 'Cooper', 'Sales', 70000, '2024-03-10', 'Active'),
+       ('Irina', 'Zakharova', 'Engineering', 80000, '2024-01-25', 'Active'),
+       ('Thomas', 'Peterson', 'HR', 60000, '2024-04-05', 'Active');
 
 UPDATE employees
 SET salary = salary * 1.1
-WHERE emp_id IN (
-    SELECT emp_id
-    FROM employees
-    ORDER BY emp_id DESC
-    LIMIT 5
-);
+WHERE emp_id IN (SELECT emp_id
+                 FROM employees
+                 ORDER BY emp_id DESC
+                 LIMIT 5);
 
 -- 26. Data migration simulation
+INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
+VALUES ('Aleksandr', 'Borisov', 'IT', 75000, '2021-03-12', 'Inactive'),
+       ('Maria', 'Egorova', 'Finance', 68000, '2020-07-05', 'Inactive'),
+       ('Vladimir', 'Kuznetsov', 'Marketing', 59000, '2019-11-21', 'Inactive'),
+       ('Rachel', 'Stewart', 'HR', 62000, '2022-01-17', 'Inactive'),
+       ('Denis', 'Sokolov', 'Sales', 57000, '2021-09-09', 'Inactive');
+
 CREATE TABLE employee_archive AS
 SELECT *
 FROM employees
 WHERE status = 'Inactive';
+
 DELETE
 FROM employees
 WHERE emp_id IN (SELECT emp_id
