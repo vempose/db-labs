@@ -112,8 +112,8 @@ UPDATE department
 SET budget = sub.avg_salary * 1.2
 FROM (SELECT department, avg(salary) as avg_salary
       FROM employees
-      -- The GROUP BY department is needed because we're asking for the average salary per
-      -- department, not just the overall average.
+      -- GROUP BY department is necessary because we're asked to specify the average salary for each department,
+      -- not just the overall average
       GROUP BY department) AS sub
 WHERE sub.department = department.dept_name;
 
