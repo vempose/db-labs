@@ -9,7 +9,7 @@ CREATE TABLE employees
     first_name TEXT,
     last_name  TEXT,
     department TEXT,
-    salary     INT  DEFAULT 0,
+    salary     INT,
     hire_date  DATE,
     status     TEXT DEFAULT 'Active'
 );
