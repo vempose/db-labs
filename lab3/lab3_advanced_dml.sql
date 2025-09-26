@@ -234,18 +234,22 @@ FROM department d
 WHERE d.dept_name = e.department;
 
 --  25. Bulk operations
-WITH inserted AS (
-    INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
-        VALUES ('Liam', 'Scott', 'IT', 77000, '2023-09-01', 'Active'),
-               ('Emma', 'Young', 'IT', 76000, '2023-09-02', 'Active'),
-               ('Ava', 'Hall', 'Finance', 68000, '2023-09-03', 'Active'),
-               ('William', 'Allen', 'Marketing', 59000, '2023-09-04', 'Active'),
-               ('Sophia', 'Clark', 'Sales', 61000, '2023-09-05', 'Active')
-        RETURNING emp_id, salary)
-UPDATE employees e
-SET salary = i.salary * 1.10
-FROM inserted AS i
-WHERE e.emp_id = i.emp_id;
+INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
+VALUES
+    ('John', 'Smith', 'Engineering', 75000, '2024-01-15', 'Active'),
+    ('Sarah', 'Johnson', 'Marketing', 65000, '2024-02-20', 'Active'),
+    ('Michael', 'Brown', 'Sales', 70000, '2024-03-10', 'Active'),
+    ('Emily', 'Davis', 'Engineering', 80000, '2024-01-25', 'Active'),
+    ('Robert', 'Wilson', 'HR', 60000, '2024-04-05', 'Active');
+
+UPDATE employees
+SET salary = salary * 1.1
+WHERE emp_id IN (
+    SELECT emp_id
+    FROM employees
+    ORDER BY emp_id DESC
+    LIMIT 5
+);
 
 -- 26. Data migration simulation
 CREATE TABLE employee_archive AS
