@@ -1,5 +1,5 @@
 -- ** Part A: Database and Table Setup ** --
--- Create database and tables
+-- 1. Create database and tables
 CREATE DATABASE advanced_lab;
 \c advanced lab
 
@@ -35,7 +35,7 @@ CREATE TABLE projects
 
 
 -- ** Part B: Advanced INSERT Operations ** --
--- INSERT with column specification
+-- 2. INSERT with column specification
 INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
 VALUES ('John', 'Smith', 'HR', 45000, '2018-03-15', 'Active'),
        ('Emily', 'Johnson', 'Finance', 60000, '2019-07-01', 'Active'),
@@ -58,11 +58,11 @@ VALUES ('John', 'Smith', 'HR', 45000, '2018-03-15', 'Active'),
        ('Lucas', 'Clark', 'IT', 81000, '2019-08-27', 'Active'),
        ('Harper', 'Lewis', 'Finance', 70000, '2016-02-29', 'Inactive');
 
---  INSERT with DEFAULT values
+--  3. INSERT with DEFAULT values
 INSERT INTO employees (first_name, last_name, department, hire_date, salary, status)
 VALUES ('Stanley', 'Matthews', 'IT', '2022-12-01', DEFAULT, DEFAULT);
 
--- INSERT multiple rows in single statement
+-- 4. INSERT multiple rows in single statement
 INSERT INTO department (dept_name, budget)
 VALUES ('HR', 200000),
        ('Finance', 500000),
@@ -72,11 +72,11 @@ VALUES ('HR', 200000),
        ('Senior', 500000),
        ('Junior', 120000);
 
--- INSERT with expressions
+-- 5. INSERT with expressions
 INSERT INTO employees (first_name, last_name, department, salary, hire_date)
 VALUES ('Bill', 'Slips', 'Sales', 5000 * 1.1, current_date);
 
--- INSERT from SELECT (subquery)
+-- 6. INSERT from SELECT (subquery)
 CREATE TEMP TABLE temp_employees AS
 SELECT *
 FROM employees
@@ -84,17 +84,17 @@ WHERE department = 'IT';
 
 
 -- ** Part C: Complex UPDATE Operations ** --
--- UPDATE with arithmetic expressions
+-- 7. UPDATE with arithmetic expressions
 UPDATE employees
 SET salary = salary * 1.1;
 
--- UPDATE with WHERE clause and multiple conditions
+-- 8. UPDATE with WHERE clause and multiple conditions
 UPDATE employees
 SET status = 'Senior'
 WHERE salary > 60000
   AND hire_date < '2020-01-01';
 
--- UPDATE using CASE expression
+-- 9. UPDATE using CASE expression
 UPDATE employees
 SET department = CASE
                      WHEN salary > 80000 THEN 'Management'
@@ -102,12 +102,12 @@ SET department = CASE
                      ELSE 'Junior'
     END;
 
--- UPDATE with DEFAULT
+-- 10. UPDATE with DEFAULT
 UPDATE employees
 SET department = DEFAULT
 WHERE status = 'Inactive';
 
--- UPDATE with subquery
+-- 11. UPDATE with subquery
 UPDATE department
 SET budget = sub.avg_salary * 1.2
 FROM (SELECT department, avg(salary) as avg_salary
@@ -117,7 +117,7 @@ FROM (SELECT department, avg(salary) as avg_salary
       GROUP BY department) AS sub
 WHERE sub.department = department.dept_name;
 
--- UPDATE multiple columns
+-- 12. UPDATE multiple columns
 UPDATE employees
 SET salary = salary * 1.15,
     status = 'Promoted'
@@ -126,25 +126,25 @@ WHERE department = 'Sales';
 
 
 -- ** Part D: Advanced DELETE Operations ** --
--- DELETE with simple WHERE condition
+-- 13. DELETE with simple WHERE condition
 DELETE
 FROM employees
 WHERE status = 'Terminated';
 
--- DELETE with complex WHERE clause
+-- 14. DELETE with complex WHERE clause
 DELETE
 FROM employees
 WHERE salary < 40000
   AND hire_date > '2023-01-01'
   AND department IS NULL;
 
--- DELETE with subquery
+-- 15. DELETE with subquery
 DELETE
 FROM department
 WHERE dept_name NOT IN (SELECT DISTINCT department
                         FROM employees);
 
--- DELETE with RETURNING clause
+-- 16. DELETE with RETURNING clause
 -- Firstly, we need to add some data to the projects table
 INSERT INTO projects (project_name, dept_id, start_date, end_date, budget)
 VALUES ('HR Onboarding System', 1, '2021-01-10', '2025-06-30', 50000),
@@ -165,16 +165,16 @@ RETURNING *;
 
 
 -- ** Part E: Operations with NULL Values ** --
--- INSERT with NULL values
+-- 17. INSERT with NULL values
 INSERT INTO employees (first_name, last_name, salary, department)
 VALUES ('John', 'Wick', NULL, NULL);
 
--- UPDATE NULL handling
+-- 18. UPDATE NULL handling
 UPDATE employees
 SET department = 'Unassigned'
 WHERE department IS NULL;
 
---  DELETE with NULL conditions
+-- 19. DELETE with NULL conditions
 DELETE
 FROM employees
 WHERE salary IS NULL
@@ -183,12 +183,12 @@ WHERE salary IS NULL
 
 
 -- ** Part F: RETURNING Clause Operations ** --
--- INSERT with RETURNING
+-- 20. INSERT with RETURNING
 INSERT INTO employees (first_name, last_name)
 VALUES ('Alfred', 'Walker')
 RETURNING emp_id, first_name || ' ' || last_name AS full_name;
 
--- UPDATE with RETURNING
+-- 21. UPDATE with RETURNING
 -- Add some employees
 INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
 VALUES ('Noah', 'King', 'IT', 77000, '2022-03-14', 'Active'),
@@ -202,7 +202,7 @@ SET salary = salary + 5000
 WHERE department = 'IT'
 RETURNING emp_id, salary - 5000 AS old_salary, salary AS new_salary;
 
--- DELETE with RETURNING all columns
+-- 22. DELETE with RETURNING all columns
 DELETE
 FROM employees
 WHERE hire_date < '2020-01-01'
@@ -211,7 +211,7 @@ RETURNING *;
 
 
 -- ** Part G: Advanced DML Patterns  ** --
--- Conditional INSERT
+-- 23. Conditional INSERT
 INSERT INTO employees (first_name, last_name)
 SELECT 'Semen', 'Prostoy'
 WHERE NOT EXISTS (SELECT 1
@@ -219,7 +219,7 @@ WHERE NOT EXISTS (SELECT 1
                   WHERE first_name = 'Semen'
                     AND last_name = 'Prostoy');
 
--- UPDATE with JOIN logic using subqueries
+-- 24. UPDATE with JOIN logic using subqueries
 -- NOTE: PostgreSQL’s execution order is different from the intuition:
 -- 1) PostgreSQL starts with the FROM department d
 -- 2) Then it applies the WHERE e.department = d.dept_name join condition, matching employees with departments
@@ -233,7 +233,7 @@ SET salary = salary *
 FROM department d
 WHERE d.dept_name = e.department;
 
---  Bulk operations
+--  25. Bulk operations
 WITH inserted AS (
     INSERT INTO employees (first_name, last_name, department, salary, hire_date, status)
         VALUES ('Liam', 'Scott', 'IT', 77000, '2023-09-01', 'Active'),
@@ -247,7 +247,7 @@ SET salary = i.salary * 1.10
 FROM inserted AS i
 WHERE e.emp_id = i.emp_id;
 
--- Data migration simulation
+-- 26. Data migration simulation
 CREATE TABLE employee_archive AS
 SELECT *
 FROM employees
@@ -257,7 +257,7 @@ FROM employees
 WHERE emp_id IN (SELECT emp_id
                  FROM employee_archive);
 
---  20. Complex business logic
+--  27. Complex business logic
 UPDATE projects
 SET end_date = end_date + 30 -- by default, it means +30 days
 WHERE budget > 50000 -- first condition
