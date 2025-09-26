@@ -4,6 +4,8 @@ CREATE TABLESPACE video_storage
     LOCATION '/data/videos';
 
 -- Part B: New Table Creation
+-- This tables should be created in the elearning_platform database
+\c elearning_platform
 CREATE TABLE online_videos (
     video_id            SERIAL,
     course_id           INT,
@@ -27,6 +29,8 @@ CREATE TABLE student_progress (
 );
 
 -- Part C: Modify Existing Tables
+-- This actions should be done in the university_main database
+\c university_main
 ALTER TABLE courses ADD COLUMN
     is_online_available BOOLEAN
     DEFAULT false;
@@ -41,6 +45,8 @@ ALTER TABLE students ADD COLUMN
     last_login TIMESTAMP;
 
 -- Part D: Quick Data Type Challenge
+-- This table should be created in the elearning_platform database
+\c elearning_platform
 CREATE TABLE quiz_attempts (
     attempt_id      SERIAL,
     student_id      INT,
