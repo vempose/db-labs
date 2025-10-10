@@ -321,6 +321,104 @@ FROM order_items
 WHERE order_id = 100;
 
 
-
 -- ** Part 6: Practical Application ** --
--- Task 6.1: E-commerce Database Design
+-- Everything below must be done in a new empty database!!!
+CREATE TABLE customers
+(
+    customer_id       SERIAL PRIMARY KEY,
+    name              TEXT        NOT NULL,
+    email             TEXT UNIQUE NOT NULL,
+    phone             TEXT,
+    registration_date DATE        NOT NULL
+);
+CREATE TABLE products
+(
+    product_id     SERIAL PRIMARY KEY,
+    name           TEXT    NOT NULL,
+    description    TEXT,
+    price          NUMERIC NOT NULL CHECK (price >= 0),
+    stock_quantity INT     NOT NULL CHECK (stock_quantity >= 0)
+);
+CREATE TABLE orders
+(
+    order_id     SERIAL PRIMARY KEY,
+    customer_id  INT REFERENCES customers ON DELETE RESTRICT NOT NULL, -- FK: RESTRICT prevents deletion of customer if they have existing orders.
+    order_date   TIMESTAMP                                   NOT NULL,
+    total_amount NUMERIC                                     NOT NULL CHECK (total_amount >= 0),
+    status       TEXT                                        NOT NULL CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled'))
+);
+CREATE TABLE order_details
+(
+    order_detail_id SERIAL PRIMARY KEY,
+    order_id        INT REFERENCES orders ON DELETE CASCADE    NOT NULL, -- FK: CASCADE deletes details if the parent order is deleted.
+    product_id      INT REFERENCES products ON DELETE RESTRICT NOT NULL, -- FK: RESTRICT prevents deletion of a product if it's part of an order.
+    quantity        INT                                        NOT NULL CHECK (quantity > 0),
+    unit_price      NUMERIC                                    NOT NULL CHECK (unit_price >= 0)
+);
+
+INSERT INTO customers (name, email, phone, registration_date)
+VALUES ('Alice Johnson', 'alice@mail.com', '555-1001', '2023-01-15'),
+       ('Bob Williams', 'bob@mail.com', '555-1002', '2023-03-20'),
+       ('Charlie Davis', 'charlie@mail.com', '555-1003', '2023-05-10'),
+       ('Diana Prince', 'diana@mail.com', '555-1004', '2023-06-01'),
+       ('Eve Adams', 'eve@mail.com', '555-1005', '2023-08-05'),
+       ('Frank Miller', 'frank@mail.com', '555-1006', '2024-01-10'),
+       ('Grace Lee', 'grace@mail.com', '555-1007', '2024-03-01');
+
+INSERT INTO products (name, description, price, stock_quantity)
+VALUES ('Laptop Pro', 'High-performance laptop', 1200.00, 15),
+       ('Wireless Mouse', 'Ergonomic wireless mouse', 25.50, 150),
+       ('USB-C Hub', '7-in-1 adapter', 49.99, 75),
+       ('Mechanical Keyboard', 'RGB, tactile keys', 99.99, 50),
+       ('Webcam HD', '1080p streaming webcam', 35.00, 90);
+
+INSERT INTO orders (customer_id, order_date, total_amount, status)
+VALUES (1, '2024-05-01 10:00:00', 1249.99, 'delivered'),
+       (2, '2024-05-01 12:30:00', 51.00, 'shipped'),
+       (3, '2024-05-02 09:15:00', 1335.00, 'processing'),
+       (4, '2024-05-02 14:45:00', 99.99, 'pending'),
+       (5, '2024-05-03 16:00:00', 25.50, 'cancelled'),
+       (1, '2024-05-04 11:00:00', 70.00, 'delivered');
+
+INSERT INTO order_details (order_id, product_id, quantity, unit_price)
+VALUES (1, 1, 1, 1200.00),
+       (1, 3, 1, 49.99),
+       (2, 2, 2, 25.50),
+       (3, 1, 1, 1200.00),
+       (3, 5, 1, 35.00),
+       (4, 4, 1, 99.99),
+       (5, 2, 1, 25.50),
+       (6, 5, 2, 35.00),
+       (4, 3, 1, 49.99),
+       (6, 4, 1, 99.99);
+
+-- Violates UNIQUE (email) because 'alice@mail.com' already exists
+SELECT '--- Violates UNIQUE (email) ---';
+INSERT INTO customers (name, email, phone, registration_date)
+VALUES ('Duplicate User', 'alice@mail.com', '555-9999', '2024-05-05');
+-- Violates NOT NULL (name)
+SELECT '--- Violates NOT NULL (name) ---';
+INSERT INTO customers (name, email, phone, registration_date)
+VALUES (NULL, 'nullname@mail.com', '555-0000', '2024-05-05');
+-- Violates CHECK (price >= 0)
+SELECT '--- Violates CHECK (price >= 0) ---';
+INSERT INTO products (name, description, price, stock_quantity)
+VALUES ('Invalid Product', 'Negative price', -5.00, 10);
+-- Violates CHECK (status IN (...))
+SELECT '--- Violates CHECK (status) ---';
+INSERT INTO orders (customer_id, order_date, total_amount, status)
+VALUES (1, NOW(), 50.00, 'returned');
+-- 'returned' is not an allowed status
+-- Violates CHECK (quantity > 0)
+SELECT '--- Violates CHECK (quantity > 0) ---';
+INSERT INTO order_details (order_id, product_id, quantity, unit_price)
+VALUES (1, 1, 0, 1200.00);
+-- Violates FK (customer_id) because customer 99 does not exist
+SELECT '--- Violates FK (customer_id) ---';
+INSERT INTO orders (customer_id, order_date, total_amount, status)
+VALUES (99, NOW(), 10.00, 'pending');
+-- Violates FK constraint on order_details because product_id 1 is used in an existing order
+SELECT '--- Violates ON DELETE RESTRICT (Product 1) ---';
+DELETE
+FROM products
+WHERE product_id = 1;
